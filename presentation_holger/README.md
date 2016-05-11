@@ -64,6 +64,7 @@ pip install -U pillow
 pip install -U pandas
 pip install -U patsy
 pip install -U statsmodels
+pip install https://github.com/ipython-contrib/IPython-notebook-extensions/archive/master.zip
 
 # install development version of theano:
 git clone git://github.com/Theano/Theano.git
@@ -83,3 +84,4 @@ Now start Jupyter Notebook with:
 jupyter notebook
 ```
 
+I would enable a few jupyter notebook extensions (i.e. Codefolding) by going to [http://localhost:8888/nbextensions](http://localhost:8888/nbextensions).
