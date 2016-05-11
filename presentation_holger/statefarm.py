@@ -22,14 +22,14 @@ class Statefarm:
         self.path_data = path_data
         self.path_cache = path_cache
 
-    def get_im_skipy(self, path, img_rows, img_cols, color_type=1):
+    def get_im_skipy(self, path, img_rows, img_cols, color_type=1, interp='nearest'):
         # Load as grayscale
         if color_type == 1:
             img = imread(path, True)
         elif color_type == 3:
             img = imread(path)
         # Reduce size
-        resized = imresize(img, (img_cols, img_rows))
+        resized = imresize(img, (img_rows, img_cols), interp=interp)
         return resized
 
     def get_driver_data(self):
@@ -47,7 +47,7 @@ class Statefarm:
         f.close()
         return dr
 
-    def load_train(self, img_rows, img_cols, color_type=1):
+    def load_train(self, img_rows, img_cols, color_type=1, interp='nearest'):
         X_train = []
         y_train = []
         driver_id = []
@@ -61,7 +61,7 @@ class Statefarm:
             files = glob.glob(path)
             for fl in files:
                 flbase = os.path.basename(fl)
-                img = self.get_im_skipy(fl, img_rows, img_cols, color_type)
+                img = self.get_im_skipy(fl, img_rows, img_cols, color_type, interp=interp)
                 X_train.append(img)
                 y_train.append(j)
                 driver_id.append(driver_data[flbase])
@@ -71,7 +71,7 @@ class Statefarm:
         print(unique_drivers)
         return X_train, y_train, driver_id, unique_drivers
 
-    def load_test(self, img_rows, img_cols, color_type=1):
+    def load_test(self, img_rows, img_cols, color_type=1, interp='nearest'):
         print('Read test images')
         path = os.path.join(self.path_data, 'test', '*.jpg')
         files = glob.glob(path)
@@ -81,7 +81,7 @@ class Statefarm:
         thr = math.floor(len(files)/10)
         for fl in files:
             flbase = os.path.basename(fl)
-            img = self.get_im_skipy(fl, img_rows, img_cols, color_type)
+            img = self.get_im_skipy(fl, img_rows, img_cols, color_type, interp=interp)
             X_test.append(img)
             X_test_id.append(flbase)
             total += 1
@@ -137,11 +137,11 @@ class Statefarm:
         sub_file = os.path.join('subm', 'submission_' + suffix + '.csv')
         result1.to_csv(sub_file, index=False)
 
-    def read_and_normalize_train_data(self, img_rows, img_cols, color_type=1):
+    def read_and_normalize_train_data(self, img_rows, img_cols, color_type=1, interp='nearest'):
         cache_path = os.path.join(self.path_cache)
-        filename = 'train_r_' + str(img_rows) + '_c_' + str(img_cols) + '_t_' + str(color_type) + '.dat'
+        filename = 'train_r_' + str(img_rows) + '_c_' + str(img_cols) + '_t_' + str(color_type) + '_interp_' + interp + '.dat'
         if not os.path.isfile(os.path.join(cache_path, filename)) or self.use_cache == 0:
-            train_data, train_target, driver_id, unique_drivers = self.load_train(img_rows, img_cols, color_type)
+            train_data, train_target, driver_id, unique_drivers = self.load_train(img_rows, img_cols, color_type, interp)
             self.cache_data((train_data, train_target, driver_id, unique_drivers), cache_path, filename)
         else:
             #print('Restore train from cache!')
@@ -157,11 +157,11 @@ class Statefarm:
         #print(train_data.shape[0], 'train samples')
         return train_data, train_target, driver_id, unique_drivers
 
-    def read_and_normalize_test_data(self, img_rows, img_cols, color_type=1):
+    def read_and_normalize_test_data(self, img_rows, img_cols, color_type=1, interp='nearest'):
         cache_path = os.path.join(self.path_cache)
-        filename = 'test_r_' + str(img_rows) + '_c_' + str(img_cols) + '_t_' + str(color_type) + '.dat'
+        filename = 'test_r_' + str(img_rows) + '_c_' + str(img_cols) + '_t_' + str(color_type) + '_interp_' + interp + '.dat'
         if not os.path.isfile(os.path.join(cache_path, filename)) or self.use_cache == 0:
-            test_data, test_id = self.load_test(img_rows, img_cols, color_type)
+            test_data, test_id = self.load_test(img_rows, img_cols, color_type, interp)
             self.cache_data((test_data, test_id), cache_path, filename)
         else:
             #print('Restore test from cache!')
