@@ -1,24 +1,38 @@
 import json
 import os
-import theano
+import pickle
+import time
+
 import numpy as np
+import theano
 import keras
 
-"""def save_result(res, name='results'):
-    filename = name + '.json'
-    if os.path.exists(filename):
-        with open(filename,'r') as f:
-            list_ = json.load(f)
-    else:
-        list_ = []
-    list_.append(res)
-    with open('results.json','w') as f:
-        list_ = json.dump(res, f)"""
-
-def save_result(res, name='results'):
-    import pickle
-    with open(name, 'wb') as f:
+def save_result(res, name='result', folder='results'):
+    name += '_' + str(round(time.time()))
+    path = os.path.join(folder, name)
+    with open(path, 'wb') as f:
         pickle.dump(res, f)
+
+def laod_result(name, folder='results'):
+    path = os.path.join(folder, name)
+    with open(path, 'rb') as f:
+        res = pickle.load(res, f)
+    return res
+
+def list_results(folder='results'):
+    return os.listdir(folder)
+
+
+# ------------------------------------------------------------------------ #
+
+"""
+Calculate statistics network correlations from:
+
+Li, Yixuan, et al. "Convergent Learning: Do different neural networks learn
+the same representations?." Proceedings of International Conference on
+Learning Representation (ICLR). 2016.
+"""
+
 
 def calc_act_stats(acts1, acts2):
     stats1 = calc_single_act_stats(acts1)
@@ -48,11 +62,8 @@ def calc_within_net_corr(acts):
 
 def calc_between_net_corr(acts1, acts2):
     """
-    Calculate the correlation matrix for each layer between two neural networks.
-
-    Li, Yixuan, et al. "Convergent Learning: Do different neural networks learn
-    the same representations?." Proceedings of International Conference on
-    Learning Representation (ICLR). 2016.
+    Calculate the correlation matrix for each layer
+    between two neural networks.
     """
 
     assert len(acts1) == len(acts2)

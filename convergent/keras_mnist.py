@@ -7,7 +7,7 @@ from keras.utils import np_utils
 import experiment
 
 
-def load_mnist(cnn):
+def load_mnist():
     (X_train, y_train), (X_test, y_test) = mnist.load_data()
     X_train = X_train.reshape(60000, 784)
     X_test = X_test.reshape(10000, 784)
@@ -46,9 +46,9 @@ if __name__ == "__main__":
 
     model = build_model()
     model.fit(X_train, y_train,
-        batch_size=128, nb_epoch=4, verbose=1,
+        batch_size=128, epochs=4, verbose=1,
         validation_data=(X_test, y_test))
 
     score = model.evaluate(X_test, y_test, verbose=0)
 
-    print('score' : score)
+    print('score', score)

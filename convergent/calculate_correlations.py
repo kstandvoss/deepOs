@@ -1,4 +1,5 @@
 from time import time
+import os
 
 import numpy as np
 
@@ -21,25 +22,25 @@ def calculate_collect_activations(name, cnn):
     if cnn:
         (X_train, y_train), (X_test, y_test) = load_mnist_cnn()
     else:
-    (X_train, y_train), (X_test, y_test) = load_mnist()
+        (X_train, y_train), (X_test, y_test) = load_mnist()
 
-    if cnn:
-        name += '_cnn'
+    if cnn: name += '_cnn'
     name += '.h5'
+    path = os.path.join('models', name)
     tic = time()
     try:
-        model = keras.models.load_model(name)
+        model = keras.models.load_model(path)
         print('load model', end='\t', flush=True)
     except:
         print('create model')
         if cnn:
-            model = build_cnn_model()
+            model = build_model_cnn()
         else:
             model = build_model()
         model.fit(X_train, y_train,
-            batch_size=128, nb_epoch=4, verbose=1,
+            batch_size=128, epochs=4, verbose=1,
             validation_data=(X_test, y_test))
-        model.save(name)
+        model.save(path)
     print(round(time() - tic), 'secs')
 
     print('calc score', end='\t', flush=True)
@@ -55,7 +56,7 @@ def calculate_collect_activations(name, cnn):
     print('calc stats', end='\t', flush=True)
     tic = time()
     stats = experiment.calc_single_act_stats(activations)
-    print(round(time() - tic))
+    print(round(time() - tic), 'secs')
 
     del tic, model
     return locals()
@@ -68,9 +69,9 @@ if __name__ == "__main__":
             result = calculate_two_models(cnn=True)
         else:
             raise Exception('invalid argument' + sys.argv[1])
-        filename = 'result_' + sys.argv[0] + '_'
+        filename = 'result_' + sys.argv[0]
     else:
-        result = calculate_two_models(cnn=True)
-        filename = 'result_'
+        result = calculate_two_models(cnn=False)
+        filename = 'result'
 
-    experiment.save_result(result, filename + str(round(time())))
+    experiment.save_result(result, filename)

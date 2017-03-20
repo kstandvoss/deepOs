@@ -23,6 +23,9 @@ def load_mnist_cnn():
     # the data, shuffled and split between train and test sets
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
+    # TODO: just hack this for a moment
+    global input_shape
+
     if K.image_data_format() == 'channels_first':
         x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
         x_test = x_test.reshape(x_test.shape[0], 1, img_rows, img_cols)
@@ -59,8 +62,9 @@ def build_model_cnn():
     model.compile(loss=keras.losses.categorical_crossentropy,
                   optimizer=keras.optimizers.Adadelta(),
                   metrics=['accuracy'])
+    return model
 
-def __name__ == "__main__":
+if __name__ == "__main__":
     (x_train, y_train), (x_test, y_test) = load_data()
     model = build_model_cnn()
 
