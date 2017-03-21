@@ -16,7 +16,7 @@ layers = result['res1']['layers']
 between_corr = result['between_net_corr']
 
 figure('between_net_corr')
-for i, (lay, bnc) in enumzip(layers, ):
+for i, (lay, bnc) in enumzip(layers, between_corr):
     subplot(3,3,i+1)
     imshow(bnc, cmap='magma')
     #hist(bnc)
