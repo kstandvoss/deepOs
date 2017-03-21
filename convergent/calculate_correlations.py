@@ -58,7 +58,10 @@ def calculate_collect_activations(name, cnn):
     stats = experiment.calc_single_act_stats(activations)
     print(round(time() - tic), 'secs')
 
-    del tic, model
+    layers = [l.name for l in model.layers]
+
+    del tic, cnn
+    del X_train, y_train, X_test, y_test
     return locals()
 
 

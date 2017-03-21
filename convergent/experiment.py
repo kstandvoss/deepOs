@@ -8,22 +8,34 @@ import theano
 import keras
 
 def save_result(res, name='result', folder='results'):
-    name += '_' + str(round(time.time()))
+
+    name += '_' + str(round(time.time()) % 10**5)
     path = os.path.join(folder, name)
     with open(path, 'wb') as f:
         pickle.dump(res, f)
 
-def laod_result(name, folder='results'):
+def load_result(name=None, folder='results'):
+
+    if name == None:
+        names = os.listdir('results')
+        for i,name in enumerate(os.listdir('results')):
+            print(i, name)
+        i = input('enter number: ')
+        name = names[int(i)]
+
     path = os.path.join(folder, name)
     with open(path, 'rb') as f:
-        res = pickle.load(res, f)
+        res = pickle.load(f)
     return res
 
 def list_results(folder='results'):
     return os.listdir(folder)
 
+def load_model(name):
+    path = os.path.join('models', name + '.h5')
+    return keras.models.load_model(path)
 
-# ------------------------------------------------------------------------ #
+# --------------------------------------------------------------------------------- #
 
 """
 Calculate statistics network correlations from:
@@ -116,15 +128,48 @@ def get_output(model, layer, X_batch):
     return get_output(X_batch, 0) # same result as above
 
 
-def get_all_outputs(model, X_batch):
+def get_all_outputs(model, X_batch, verbose=False):
     """
     Calls get_output for each layer of a sequential model.
     """
 
     outputs = []
     for i in range(len(model.layers)):
+        if verbose:
+            print('calc output for layer %s' % i)
         act = get_output(model, i, X_batch)
         outputs.append(act)
 
     # layer x batch x unit => layer x unit x batch
     return [a.T for a in outputs]
+
+
+def model2pic(model, name, folder='pics'):
+    filename = os.path.join(folder, name + '.png')
+
+    # plot keras graph
+    from keras.utils import plot_model
+    plot_model(model, to_file=filename)
+
+    # plot theano graph of layers
+    #import theano.d3viz as d3v
+    #d3v.d3viz(model.layers[-1].output, filename)
+
+
+"""def model2pic_ipynb(model):
+
+    from IPython.display import IFrame
+    d3v.d3viz(predict, 'examples/mlp.html')
+    iframe_obj = IFrame('examples/mlp.html', width=700, height=500)
+
+    from IPython.display import SVG
+    from keras.utils.visualize_util import model_to_dot
+    svg_obj = SVG(model_to_dot(model).create(prog='dot', format='svg'))
+
+    return iframe_obj, svg_obj"""
+
+if __name__ == '__main__':
+    from keras_mnist import load_mnist
+    (X_train, y_train),(X_test, y_test) = load_mnist()
+    model = load_model('model1')
+    acts = get_all_outputs(model, X_test, verbose=True)
